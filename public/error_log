@@ -1,0 +1,2 @@
+[15-Oct-2025 04:46:30 UTC] PHP Warning:  Constant PASSWORD_DEFAULT already defined in /home/sasiznak/sd.sasindu.work/update_pass.php on line 17
+[15-Oct-2025 12:07:27 UTC] Cron reschedule event error for hook: litespeed_task_imgoptm_req, Error code: could_not_set, Error message: The cron event list could not be saved., Data: {"schedule":"litespeed_filter","args":[],"interval":60}

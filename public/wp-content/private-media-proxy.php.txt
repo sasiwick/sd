@@ -1,0 +1,57 @@
+<?php
+// wp-content/private-media-proxy.php
+// Serve files from /wp-content/uploads ONLY to logged-in users.
+
+define('SHORTINIT', false);
+require dirname(__DIR__) . '/wp-load.php';
+
+// Must be logged in
+if ( ! is_user_logged_in() ) {
+    // Redirect to login and come back to the original image URL
+    $current_url = ( (is_ssl() ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] );
+    wp_safe_redirect( wp_login_url( $current_url ) );
+    exit;
+}
+
+// Get and sanitize the relative path requested (e.g. "2025/10/photo.jpg")
+$rel = isset($_GET['file']) ? wp_unslash($_GET['file']) : '';
+$rel = ltrim($rel, "/\\"); // normalize
+
+// Resolve to absolute path inside uploads
+$up = wp_upload_dir();
+$base = realpath($up['basedir']);
+$path = realpath($base . DIRECTORY_SEPARATOR . $rel);
+
+// Security checks
+if ( ! $base || ! $path || strpos($path, $base) !== 0 || ! is_file($path) ) {
+    status_header(404);
+    exit('Not found');
+}
+
+// Send no-cache headers for privacy (adjust if you want caching for logged-in users)
+nocache_headers();
+
+// Detect content type
+$mime = wp_check_filetype($path);
+$ctype = $mime['type'];
+if (empty($ctype)) {
+    if (function_exists('mime_content_type')) {
+        $ctype = mime_content_type($path);
+    }
+    if (empty($ctype)) $ctype = 'application/octet-stream';
+}
+
+// Stream file inline (so <img> works)
+header('Content-Type: ' . $ctype);
+header('Content-Length: ' . filesize($path));
+header('Content-Disposition: inline; filename="' . rawurlencode(basename($path)) . '"');
+
+// Efficient streaming
+$chunk = 8192;
+$fp = fopen($path, 'rb');
+while (!feof($fp)) {
+    echo fread($fp, $chunk);
+    @ob_flush(); flush();
+}
+fclose($fp);
+exit;

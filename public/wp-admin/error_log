@@ -1,0 +1,2 @@
+[15-Oct-2025 09:54:39 UTC] PHP Fatal error:  Cannot redeclare is_login() (previously declared in /home/sasiznak/sd.sasindu.work/wp-includes/load.php:1333) in /home/sasiznak/sd.sasindu.work/wp-content/themes/hello-elementor/functions.php on line 283
+[15-Oct-2025 10:08:04 UTC] PHP Parse error:  syntax error, unexpected token "<", expecting end of file in /home/sasiznak/sd.sasindu.work/wp-content/themes/hello-elementor/functions.php on line 326
